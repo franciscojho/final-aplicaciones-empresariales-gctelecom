@@ -2,60 +2,174 @@ USE MASTER
 
 -- CLOSE ALL CONNECTIONS TO DATABASE
 GO
-	IF EXISTS(SELECT * FROM sys.databases WHERE name='librarydb')  
+	IF EXISTS(SELECT * FROM sys.databases WHERE name='gctelecomdb')  
 BEGIN
-	ALTER DATABASE librarydb SET SINGLE_USER
+	ALTER DATABASE gctelecomdb SET SINGLE_USER
 WITH ROLLBACK IMMEDIATE
 END
 GO
 
 -- SEARCH IF THE DATABASE EXISTS, ELSE WE DELETE IT
-IF EXISTS(SELECT * FROM sys.databases WHERE name='librarydb')  
+IF EXISTS(SELECT * FROM sys.databases WHERE name='gctelecomdb')  
 BEGIN 
 	USE MASTER
-    DROP DATABASE librarydb
+    DROP DATABASE gctelecomdb
 END 
 GO
 
 -- CREATE THE DATABASE
-CREATE DATABASE librarydb
+CREATE DATABASE gctelecomdb
 GO
 
 -- WE SELECT THE DATABASE
-USE librarydb
+USE gctelecomdb
 GO
 
--- BEGIN CREATE USER TABLE
-CREATE TABLE library_user(
-	user_id INTEGER PRIMARY KEY IDENTITY(1,1),
-	name varchar(30) NOT NULL,
-	last_name varchar(30) NOT NULL,
-	email varchar(30) NOT NULL,
-	phone varchar(9) NOT NULL,
-	address varchar(100) NOT NULL,
-	user_type VARCHAR(20) NOT NULL CHECK (user_type IN('estudiante', 'profesor', 'visitante')),
-	status bit NOT NULL,
+-- BEGIN CREATE CLIENTE TABLE
+CREATE TABLE cliente(
+	cliente_id INTEGER PRIMARY KEY IDENTITY(1,1),
+	nombre varchar(100) NOT NULL,
+	correo varchar(100) NOT NULL,
+	celular varchar(9) NOT NULL,
+	direccion TEXT NOT NULL,
+	fuente VARCHAR(20) NOT NULL CHECK (fuente IN('Página Web', 'Redes Sociales', 'Referido')),
+	fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+	es_visible BIT NOT NULL,
 )
 GO
 
-INSERT INTO library_user VALUES ('Francisco', 'Huapaya', 'franciscojho@hotmail.com', '940361504', 'Av. Chavito 123, El Olivar, Lima', 'estudiante', 1)
+INSERT INTO cliente (nombre, correo, celular, direccion, fuente, es_visible) 
+VALUES ('Francisco Huapaya', 'franciscojho@hotmail.com', '940361504', 'Av. Chavito 123, El Olivar, Lima', 'Página Web', 1)
 GO
 
-SELECT * FROM library_user
--- END CREATE USER TABLE
+SELECT * FROM cliente
+-- END CREATE CLIENTE TABLE
 
--- BEGIN CREATE BORROW TABLE
-CREATE TABLE borrow(
-	borrow_id INTEGER PRIMARY KEY IDENTITY(1,1),
-	user_id INT NOT NULL,
-	FOREIGN KEY (user_id) REFERENCES library_user(user_id),
-	borrow_date DATETIME NOT NULL,
-	return_date DATETIME NOT NULL,
-	status BIT NOT NULL
+-- BEGIN CREATE VENDEDOR TABLE
+CREATE TABLE vendedor(
+	vendedor_id INTEGER PRIMARY KEY IDENTITY(1,1),
+	nombre varchar(100) NOT NULL,
+	correo varchar(100) NOT NULL,
+	celular varchar(9) NOT NULL,
+	direccion TEXT NOT NULL,
+	es_visible BIT NOT NULL,
 )
-
-INSERT INTO borrow VALUES (1, '2025-07-03 14:30:00', '2025-07-14 14:30:00', 1)
 GO
 
-SELECT * FROM borrow
--- END CREATE BORROW TABLE
+INSERT INTO vendedor (nombre, correo, celular, direccion, es_visible) 
+VALUES ('Alberto Amaru', 'aamaru93@hotmail.com', '977000999', 'Av. Cordoba 333, San Isidro, Lima', 1)
+GO
+
+SELECT * FROM vendedor
+-- END CREATE VENDEDOR TABLE
+
+
+-- BEGIN CREATE PRODUCTO TABLE
+CREATE TABLE producto(
+	producto_id INTEGER PRIMARY KEY IDENTITY(1,1),
+	nombre varchar(100) NOT NULL,
+	descripcion TEXT NOT NULL,
+	precio DECIMAL NOT NULL,
+	moneda VARCHAR(10) DEFAULT 'PEN',
+	es_visible BIT NOT NULL,
+)
+GO
+
+INSERT INTO producto (nombre, descripcion, precio, es_visible) 
+VALUES ('Amplificador XT10', 'Super amplificador de celular, tendrá red en cualquies parte de tu casa.', 1500.00, 1)
+GO
+
+INSERT INTO producto (nombre, descripcion, precio, es_visible) 
+VALUES ('Antena M1000', 'Antena gigante para internet satelital.', 700.00, 1)
+GO
+
+SELECT * FROM producto
+-- END CREATE PRODUCTO TABLE
+
+-- BEGIN CREATE VENTA TABLE
+CREATE TABLE venta(
+	venta_id INTEGER PRIMARY KEY IDENTITY(1,1),
+	cliente_id INTEGER NOT NULL,
+	vendedor_id INTEGER NOT NULL,
+	fecha DATETIME NOT NULL,
+	total DECIMAL NOT NULL,
+	moneda VARCHAR(10) DEFAULT 'PEN',
+	es_visible BIT NOT NULL, 
+
+	FOREIGN KEY (cliente_id) REFERENCES cliente(cliente_id),
+	FOREIGN KEY (vendedor_id) REFERENCES vendedor(vendedor_id),
+)
+GO
+
+INSERT INTO venta (cliente_id, vendedor_id, fecha, total, es_visible) 
+VALUES (1, 1, '2025-07-13 15:20:50', 2200.00, 1)
+GO
+
+SELECT * FROM venta
+-- END CREATE VENTA TABLE
+
+-- BEGIN CREATE DETALLE_VENTA TABLE
+CREATE TABLE detalle_venta(
+	detalle_venta_id INTEGER PRIMARY KEY IDENTITY(1,1),
+	venta_id INTEGER NOT NULL,
+	producto_id INTEGER NOT NULL,
+	cantidad INTEGER NOT NULL,
+
+	FOREIGN KEY (venta_id) REFERENCES venta(venta_id),
+	FOREIGN KEY (producto_id) REFERENCES producto(producto_id),
+)
+GO
+
+INSERT INTO detalle_venta (venta_id, producto_id, cantidad) 
+VALUES (1, 1, 1)
+GO
+
+INSERT INTO detalle_venta (venta_id, producto_id, cantidad) 
+VALUES (1, 2, 1)
+GO
+
+SELECT * FROM detalle_venta
+-- END CREATE DETALLE_VENTA TABLE
+
+-- BEGIN CREATE RECLAMO TABLE
+CREATE TABLE reclamo(
+	reclamo_id INTEGER PRIMARY KEY IDENTITY(1,1),
+	venta_id INTEGER NOT NULL,
+	descripcion TEXT NOT NULL,
+	fecha DATETIME NOT NULL,
+	estado VARCHAR(20) NOT NULL CHECK (estado IN('Pendiente', 'En Progreso', 'Cerrado')) DEFAULT 'Pendiente', 
+	es_visible BIT NOT NULL,
+
+	FOREIGN KEY (venta_id) REFERENCES venta(venta_id),
+)
+GO
+
+INSERT INTO reclamo (venta_id, descripcion, fecha, es_visible) 
+VALUES (1, 'El amplificador está fallando, una luz está parpadeando.', '2025-07-13 18:34:23', 1)
+GO
+
+SELECT * FROM reclamo
+-- END CREATE RECLAMO TABLE
+
+-- BEGIN CREATE EVENTO TABLE
+CREATE TABLE evento(
+	evento_id INTEGER PRIMARY KEY IDENTITY(1,1),
+	cliente_id INTEGER NOT NULL,
+	vendedor_id INTEGER NOT NULL,
+	tipo VARCHAR(20) NOT NULL CHECK (tipo IN('Reunión', 'Llamada')),
+	descripcion TEXT NOT NULL,
+	fecha_inicio DATETIME NOT NULL,
+	duracion INTEGER NOT NULL,
+	es_visible BIT NOT NULL,
+
+	FOREIGN KEY (cliente_id) REFERENCES cliente(cliente_id),
+	FOREIGN KEY (vendedor_id) REFERENCES vendedor(vendedor_id),
+)
+GO
+
+INSERT INTO evento (cliente_id, vendedor_id, tipo, descripcion, fecha_inicio, duracion, es_visible) 
+VALUES (1, 1, 'Llamada', 'llamar al cliente para presentarle nuestros productos.', '2025-07-15 14:30:00', 30, 1)
+GO
+
+SELECT * FROM evento
+-- END CREATE EVENTO TABLE
