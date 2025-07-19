@@ -8,6 +8,7 @@ namespace pe.com.gctelecom.bo
         public int VendedorId { get; set; }
         public DateTime Fecha { get; set; }
         public decimal Total { get; set; }
+        public string Moneda { get; set; }
         public bool EsVisible { get; set; }
     }
 }

@@ -133,7 +133,7 @@ CREATE TABLE venta(
 GO
 
 INSERT INTO venta (cliente_id, vendedor_id, fecha, total, es_visible) 
-VALUES (1, 1, '2025-07-13 15:20:50', 2200.00, 1)
+VALUES (1, 1, CURRENT_TIMESTAMP, 2200.00, 1)
 GO
 
 SELECT * FROM venta
