@@ -87,7 +87,7 @@ namespace pe.com.gctelecom.dal
         {
             var ClienteParametros = new List<KeyValuePair<string, object>>()
                 {
-                    new KeyValuePair<string, object>("@fuente_id", Cliente.FuenteId.ToString()),
+                    new KeyValuePair<string, object>("@fuente_id", Cliente.FuenteId),
                     new KeyValuePair<string, object>("@nombre", Cliente.Nombre),
                     new KeyValuePair<string, object>("@correo", Cliente.Correo),
                     new KeyValuePair<string, object>("@celular", Cliente.Celular),
@@ -117,7 +117,7 @@ namespace pe.com.gctelecom.dal
                     new KeyValuePair<string, object>("@cliente_id", ClienteId),
                     new KeyValuePair<string, object>("@es_visible", Convert.ToInt16(EsVisible))
                 };
-            return EnviarDatosCliente("SP_ACTUALIZAR_CLIENTE", ClienteParametros);
+            return EnviarDatosCliente("SP_ACTIVAR_DESACTIVAR_CLIENTE", ClienteParametros);
         }
 
         public int ObtenerSiguienteClienteId()
