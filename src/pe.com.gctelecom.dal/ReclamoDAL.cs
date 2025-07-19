@@ -27,6 +27,7 @@ namespace pe.com.gctelecom.dal
                     {
                         ReclamoBO Reclamo = new ReclamoBO();
                         Reclamo.ReclamoId = Convert.ToInt32(RespuestaSql["reclamo_id"].ToString());
+                        Reclamo.ProductoId = Convert.ToInt32(RespuestaSql["producto_id"].ToString());
                         Reclamo.Descripcion = RespuestaSql["descripcion"].ToString();
                         Reclamo.Fecha = Convert.ToDateTime(RespuestaSql["fecha"].ToString());
                         Reclamo.Estado = RespuestaSql["estado"].ToString();
@@ -84,7 +85,8 @@ namespace pe.com.gctelecom.dal
         public bool CrearReclamo(ReclamoBO Reclamo)
         {
             var ReclamoParametros = new List<KeyValuePair<string, object>>()
-                {   
+                {
+                    new KeyValuePair<string, object>("@producto_id", Reclamo.ProductoId),
                     new KeyValuePair<string, object>("@descripcion", Reclamo.Descripcion),
                     new KeyValuePair<string, object>("@fecha", Reclamo.Fecha),
                     new KeyValuePair<string, object>("@estado", Reclamo.Estado)
@@ -97,6 +99,7 @@ namespace pe.com.gctelecom.dal
             var ReclamoParametros = new List<KeyValuePair<string, object>>()
                 {
                     new KeyValuePair<string, object>("@reclamo_id", Reclamo.ReclamoId),
+                    new KeyValuePair<string, object>("@producto_id", Reclamo.ProductoId),
                     new KeyValuePair<string, object>("@nombre", Reclamo.Descripcion),
                     new KeyValuePair<string, object>("@correo", Reclamo.Fecha),
                     new KeyValuePair<string, object>("@celular", Reclamo.Estado)
