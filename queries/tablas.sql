@@ -118,7 +118,7 @@ SELECT * FROM producto
 -- END CREATE PRODUCTO TABLE
 
 -- BEGIN CREATE VENTA TABLE
-CREATE TABLE venta(
+/*CREATE TABLE venta(
 	venta_id INTEGER PRIMARY KEY IDENTITY(1,1),
 	cliente_id INTEGER NOT NULL,
 	vendedor_id INTEGER NOT NULL,
@@ -136,11 +136,11 @@ INSERT INTO venta (cliente_id, vendedor_id, fecha, total, es_visible)
 VALUES (1, 1, CURRENT_TIMESTAMP, 2200.00, 1)
 GO
 
-SELECT * FROM venta
+SELECT * FROM venta*/
 -- END CREATE VENTA TABLE
 
 -- BEGIN CREATE DETALLE_VENTA TABLE
-CREATE TABLE detalle_venta(
+/*CREATE TABLE detalle_venta(
 	detalle_venta_id INTEGER PRIMARY KEY IDENTITY(1,1),
 	venta_id INTEGER NOT NULL,
 	producto_id INTEGER NOT NULL,
@@ -160,23 +160,23 @@ INSERT INTO detalle_venta (venta_id, producto_id, cantidad)
 VALUES (1, 2, 1)
 GO
 
-SELECT * FROM detalle_venta
+SELECT * FROM detalle_venta*/
 -- END CREATE DETALLE_VENTA TABLE
 
 -- BEGIN CREATE RECLAMO TABLE
 CREATE TABLE reclamo(
 	reclamo_id INTEGER PRIMARY KEY IDENTITY(1,1),
-	venta_id INTEGER NOT NULL,
+	producto_id INTEGER NOT NULL,
 	descripcion TEXT NOT NULL,
 	fecha DATETIME NOT NULL,
 	estado VARCHAR(20) NOT NULL CHECK (estado IN('Pendiente', 'En Progreso', 'Cerrado')) DEFAULT 'Pendiente', 
 	es_visible BIT NOT NULL DEFAULT 1,
 
-	FOREIGN KEY (venta_id) REFERENCES venta(venta_id),
+	FOREIGN KEY (producto_id) REFERENCES producto(producto_id),
 )
 GO
 
-INSERT INTO reclamo (venta_id, descripcion, fecha, es_visible) 
+INSERT INTO reclamo (producto_id, descripcion, fecha, es_visible) 
 VALUES (1, 'El amplificador está fallando, una luz está parpadeando.', '2025-07-13 18:34:23', 1)
 GO
 
